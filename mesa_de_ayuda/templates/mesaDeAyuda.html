@@ -1,0 +1,212 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block title %}
+<a href="/" style="color: aliceblue;">INICIO</a> > <a href="/contaduria/aplicaciones/"
+    style="color: aliceblue;">CONTADURIA</a> > <a href="/expedientes" style="color: aliceblue;">EXPEDIENTES</a>
+{% endblock %}
+{% block content %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    integrity="sha512-..." crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css"
+    integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'mesa-de-ayuda.css' %}">
+<script src="{% static 'mesaDeAyuda.js' %}" defer></script>
+
+<!--Modal ver datos del ticket-->
+
+<div class="modal fade " id="verTicketModal" tabindex="-1" role="dialog" aria-labelledby="verTicket" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Detalles del ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-ver-ticket">
+                <div class="modal-ver-ticket">
+
+                </div>
+
+                <div class="modal-comentarios" tabindex="0">
+
+                </div>
+                <div class="card-footer">
+                    <!-- Formulario del chat -->
+                    <form class="enviar-comentario-formulario">
+                        {% csrf_token %}
+                        <div class="contenedor-mensaje">
+                            <textarea type="text" class="formulario-mensaje"
+                                placeholder="Escribe tu mensaje..."></textarea>
+                        </div>
+                        <!-- <div class="contenedor-file">
+                          Etiqueta de estilo para el botón personalizado 
+                          <label for="inputImagen" class="custom-file-upload">
+                            <i class="far fa-file-image" aria-hidden="true"></i>
+                          </label>
+                           Input de tipo file oculto 
+                          <input type="file" id="inputImagen" class="input-imagen">
+                        </div>-->
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--Agregar ticket modal-->
+
+
+<div class="modal fade" data-bs-backdrop="static" id="nuevoTicketModal" tabindex="-1" role="dialog" aria-labellnuevo"
+    aria-hidden="true">
+    <div class="modal-dialog modal-l" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="color: #5454E6;" id="agregarTicket">
+                    <img src="/static/custom/img/logo.png" alt="logo" style="height: 50px;margin: 5px;">                    &nbsp;&nbsp; Agregar ticket
+                </h5>
+                <button type="button" class="btn-close boton-cerrar-transferencia" data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body max-height">
+                <form class="enviar-ticket-formulario">
+                    <input type="hidden" name="csrfmiddlewaretoken"
+                        value="Rf3CxdBiozlDG2n9ftwDaQTuaGVDrDteq7hLbKKY5VGRa5oDn377XUpW0f0gQzxN">
+                    <div class="row">
+                        <div class="col-12">
+                            <!-- Columna izquierda con campos del formulario -->
+                            <div class="row m-1">
+                                <label for="documento" class="form-label"><b
+                                        class="texto-documento-form text-primary">Asunto:</b></label>
+                                <input type="text" class="form-control input-asunto" placeholder="Asunto" aria-label="Asunto"
+                                    required>
+                            </div>
+            
+                            <div class="row m-1 mt-3">
+                                <label for="usuario" class="form-label"><b class="text-primary">Descripcion:</b></label>
+                                <textarea class="form-control textarea-descripcion" aria-label="With textarea"></textarea>
+                            </div>
+            
+                        </div>
+            
+                        <div class="col-12 mt-3 d-flex justify-content-center">
+                            <button type="submit" id="boton-enviar-ticket" class="btn btn-primary btn-m"
+                                data-bs-toggle="modal" data-bs-dismiss="modal" disabled>
+                                <i class="bi bi-check-circle-fill me-2"></i>Enviar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!--<button typ
+                    e="submit" id="boton-enviar-transferencia" class="btn btn-primary btn-lg btn-block close" data-bs-dismiss="modal" aria-label="Cerrar" data-bs-toggle="modal" data-bs-target="#confirmacionModal">Crear transferencia</button>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Cards-->
+<div class="container mt-4" style="min-height: 70vh;">
+    <div>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small primary coloured-icon flex-fill"><i class="icon bi bi-people fs-1"></i>
+                        <div class="info">
+                            <h4 class="fs-4">TOTAL</h4>
+                            <p><b id='solicitudes-totales'></b></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small info coloured-icon flex-fill"><i class="icon bi bi-heart fs-1"></i>
+                        <div class="info">
+                            <h4 class="fs-4">PENDIENTES</h4>
+                            <p><b id='sol-pendientes'></b></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small warning coloured-icon flex-fill"><i class="icon bi bi-folder2 fs-1"></i>
+                        <div class="info">
+                            <h4 class="fs-4">EN PROCESO</h4>
+                            <p><b id='proceso'></b></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small danger coloured-icon flex-fill"><i class="icon bi bi-star fs-1"></i>
+                        <div class="info">
+                            <h4 class="fs-4">FINALIZADAS</h4>
+                            <p><b id='sol_finalizadas'></b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--Tabla-->
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary">
+                    <h6 class="m-0 font-weight-bold text-light">Detalles tickets</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row p-3">
+                        <div class="col-6">
+                            <div id="nuevoTicket">
+                                <button type="button" id="nuevoTicketBoton" class="btn btn-primary btn-lg w-100"
+                                    data-bs-toggle="modal" data-bs-target="#nuevoTicketModal">
+                                    Nuevo ticket
+                                </button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row p-3">
+                        <div class="col-12">
+                            <div class="table-responsive" style="border-radius: 2px;">
+                                <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th class="d-none d-sm-table-cell">Fecha</th>
+                                            <th>Asunto</th>
+                                            <th class="d-none d-sm-table-cell">Asignado a</th>
+                                            <th>Estado</th>
+                                            <th class="d-none d-sm-table-cell">Ultimo comentario</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="tickets-container">
+
+                                    </tbody>
+
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

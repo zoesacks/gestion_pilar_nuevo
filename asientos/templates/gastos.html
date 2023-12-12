@@ -1,0 +1,347 @@
+{% extends "index.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+
+<!-- Add hidden fields for filter parameters -->
+<input type="hidden" name="fecha_desde" value="{{ fecha_desde }}">
+<input type="hidden" name="fecha_hasta" value="{{ fecha_hasta }}">
+
+
+<!-- Ventana emergente (modal) para el formulario avanzado -->
+<div class="modal fade" id="filtroAvanzadoModal" tabindex="-1" role="dialog" aria-labelledby="filtroAvanzadoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary" id="filtroAvanzadoModalLabel">Configuración avanzada de reporte</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- formulario -->
+        <form method="GET" action="{% url 'gastos' %}">
+          <div class="form-row">
+            
+            <div class="col-lg-6">
+
+              <div class="row">
+
+                <div class="col-lg-6">
+
+                  <!-- Filtro desde -->
+                  <label for="fecha_desde"><b class="text-primary">Fecha desde:</b></label>
+                  <input type="date" id="fecha_desde" name="fecha_desde" class="form-control">
+                </div>
+
+                <div class="col-lg-6">
+
+                  <!-- Filtro hasta -->
+                  <label for="fecha_hasta"><b class="text-primary">Fecha hasta:</b></label>
+                  <input type="date" id="fecha_hasta" name="fecha_hasta" class="form-control">
+                </div>
+
+              </div>
+
+              <div class="row">
+                <div class="col-lg-6">
+                  <label for="proveedor" style="margin-top: 20px;">
+                    <p><b class="text-primary">Proveedor</b></p>
+                    <small class="text-primary font-italic">(Pres. Ctrl para seleccionar más de uno)</small>
+                  </label>
+                  
+                  <input type="text" id="buscador_proveedores" class="form-control" placeholder="Buscar proveedor...">
+                </div>
+                <div class="col-lg-6">
+
+                  <label for="codigo" style="margin-top: 20px;">
+                    <p><b class="text-primary">Código financiero:</b></p>
+                    <small class="text-primary font-italic">(Pres. Ctrl para seleccionar más de uno)</small>
+                  </label>
+                  <input type="text" id="buscador_codigos" class="form-control" placeholder="Buscar codigo...">
+                </div>
+              </div>
+
+              <div class="row">
+
+                <div class="col-lg-6">
+
+                  <!-- lista de proveedores -->
+                  <select id="proveedor" name="proveedor" class="form-control" multiple style="font-size: small;margin-top: 15px; height: 280px; resize: vertical; max-height: 500px;">
+                    {% for proveedor in proveedores %}
+                      <option value="{{ proveedor }}">{{ proveedor }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="col-lg-6">
+
+                  <!-- lista de proveedores -->
+                  <select id="codigo" name="codigo" class="form-control" multiple style="font-size: small;margin-top: 15px; height: 280px; resize: vertical; max-height: 500px;">
+                    {% for codigo in codigos %}
+                      <option value="{{ codigo }}">{{ codigo }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="col-lg-6">
+              
+              <div class="row">
+                <div class="col-7 ">
+                  <div class="card" style="border: none;">
+                    <div class="card-body">
+                      <h6 class="card-title"><b class="text-primary">Proveedores seleccionados</b></h6>
+                      <ul id="proveedores_seleccionados" class="list-group" style="list-style: none;font-size: smaller;height: 400px;">
+                        <!-- Aquí se listarán los proveedores seleccionados -->
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-5">
+                  <div class="card" style="border: none;border-top: 15px;">
+                    <div class="card-body">
+                      <h6 class="card-title"><b class="text-primary">Codidos seleccionados</b></h6>
+                      <ul id="codigos_seleccionados" class="list-group" style="list-style: none;font-size: smaller;height: 400px;">
+                        <!-- Aquí se listarán los códigos seleccionados -->
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row justify-content-end mt-auto">
+
+                <div style="margin: 15px;">
+
+                  <!-- Boton para enviar formulario -->
+                  <button type="submit" class="btn btn-primary btn-block">Aplicar</button>
+                </div>
+                
+              </div>
+
+            </div>
+            
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="m-0 text-primary">GASTOS MUNICIPALES</h3>
+        <div class="d-flex">
+            <!-- Botón de configuración (tuerca) -->
+            <button type="button" class="btn btn-md btn-primary mx-1" title="Configuración" data-bs-toggle="modal" data-bs-target="#filtroAvanzadoModal">
+                <i class="bi bi-gear"></i>
+            </button>
+            
+            
+            <!-- Botón de descarga de reporte -->
+            <button class="btn btn-md btn-primary mx-1" title="Descargar Reporte">
+                <i class="bi bi-cloud-download"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        
+        <div class="row">
+            <div class="col-sm-6 col-md-6 col-lg-3">
+                <div class="widget-small coloured-icon" style="background-color: rgb(179, 6, 6);"><i class="icon bi bi-currency-exchange  d-none d-sm-block"></i>
+                    <div class="info p-2">
+                        <p>TOTAL GASTOS</p>
+                        <h3>$ {{ total_gastos|floatformat:0|intcomma }} M</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-3">
+                <div class="widget-small coloured-icon" style="background-color: rgb(67, 154, 6);"><i class="icon bi bi-piggy-bank-fill  d-none d-sm-block"></i>
+                    <div class="info p-2">
+                        <p>GASTOS TESORO</p>
+                        <h3>$ {{ total_gastos_ld|floatformat:0|intcomma }} M</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-3">
+                <div class="widget-small coloured-icon" style="background-color: rgb(170, 4, 156);"><i class="icon bi bi-bank  d-none d-sm-block"></i>
+                    <div class="info p-2">
+                        <p>GASTOS AFECTADOS</p>
+                        <h3>$ {{ total_gastos_af|floatformat:0|intcomma }} M</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-3">
+                <div class="widget-small coloured-icon" style="background-color: rgb(4, 4, 185);"><i class="icon bi bi-graph-up-arrow  d-none d-sm-block"></i>
+                    <div class="info p-2">
+                        <p>PROYECTADO LD</p>
+                        <h3>$ {{ total_proyeccion|floatformat:0|intcomma }} M</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GRAFICO DE GASTOS -->
+        <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary">
+                    <h6 class="m-0 font-weight-bold text-light">TOTAL GASTOS MENSUALES</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                    <div id="lineChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- TABLA DE GASTOS -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4" style="height: 90vh;">
+                    <!-- Card Header - Dropdown -->
+                    <!-- <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary">
+                        <h6 class="m-0 font-weight-bold text-light">TABLA DE GASTOS</h6>
+                    </div> -->
+                    <div class="card-body" style="overflow: auto;">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr class="bg-primary text-light">
+                                            <th class="bg-primary text-light">Cod. Financ.</th>
+                                            <th class="bg-primary text-light">Proveedor</th>
+                                            <th class="bg-primary text-light">Fecha</th>
+                                            <th class="bg-primary text-light">Jursidicción</th>
+                                            <th class="bg-primary text-light">Pagado</th>
+                                            <th class="bg-primary text-light">Fuente F.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pagado in page_obj  %}
+                                            {% if pagado.pagado > 0 %}
+                                                <tr>
+                                                    <td>{{ pagado.codigo }}</td>
+                                                    <td>{{ pagado.proveedor_tipo }}-{{ pagado.proveedor_numero }}   {{ pagado.razon_social }}</td>
+                                                    <td>{{ pagado.fecha }}</td>
+                                                    <td>{{ pagado.jurisdiccion_descripcion }}</td>
+                                                    <td>${{ pagado.pagado|floatformat:0|intcomma }}</td> 
+                                                    <td>{{ pagado.fuente_financiamiento }}</td>
+                                                </tr>   
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div class="pagination justify-content-center">
+                                    <span class="step-links">
+                                        <!-- Código de paginación... -->
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script> 
+
+
+<!-- GRAFICO DE EVOLUCION DEL TESORO -->
+<script>
+Highcharts.chart('lineChart', {
+    chart: {
+        type: 'column',
+        events: {
+            load: function () {
+                // Configura el botón de descarga después de que el gráfico se carga completamente
+                this.exporting.update({
+                    enabled: true
+                });
+            }
+        }
+    },
+    title: {
+        text: ' '
+    },
+    xAxis: {
+        categories: [25,30,55],
+
+        uniqueCategories: true // Asegura que las categorías sean únicas
+    },
+    yAxis: {
+        title: {
+            text: false,
+        },
+    },
+    plotOptions: {
+        line: { 
+            lineWidth: 4,
+            dataLabels: {
+                enabled: true, // Muestra etiquetas en los puntos de la línea
+                formatter: function () {
+                    return Highcharts.numberFormat(this.y / 1000000, 0) + 'M';
+                }
+            }
+
+        },
+        column: { // Configuración específica para la línea
+            dataLabels: {
+                enabled: true, // Muestra etiquetas en los puntos de la línea
+                formatter: function () {
+                    return Highcharts.numberFormat(this.y / 1000000, 0) + 'M';
+                }
+            }
+
+        }
+    },
+    exporting: {
+        enabled: false,
+        buttons: {
+            contextButton: {
+                menuItems: ['downloadPNG', 'downloadPDF'], // Formatos de archivo permitidos
+                symbol: 'menu'
+            }
+        }
+    },
+    series: [
+        {
+            name: 'Gastos LD',
+            data:  [25,30,55],
+            color: 'rgba(67, 154, 6, 0.5)',
+            type:'column',
+        },
+        {
+            name: 'Gastos AF',
+            data:  [25,30,55],
+            color: 'rgba(170, 4, 156, 0.5)',
+            type:'column',
+        },
+        {
+            name: 'Gastos Proyectados LD',
+            data:  [25,30,55],
+            color: 'rgba(4, 4, 185, 1)',
+            type:'line',
+        }
+    ]
+});
+</script>
+
+
+
+{% endblock %}

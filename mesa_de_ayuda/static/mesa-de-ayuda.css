@@ -1,0 +1,72 @@
+.modal-comentarios {
+  
+    height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;   
+    scroll-behavior: smooth;
+    border-bottom: 1px solid gray;
+    padding-bottom: 20px;
+   
+}
+
+.mensaje {
+    border-radius: 10px;
+    width: 60%;
+    padding: 10px;
+}
+
+.mensaje.ajeno {
+    background-color: rgb(243, 243, 243);
+}
+
+.mensaje.propio {
+    background-color: rgb(84, 84, 230);
+    align-self: flex-end;
+}
+
+.mensaje.propio {
+    color: white !important;
+}
+
+.enviar-comentario-formulario {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.contenedor-mensaje {
+    width: 80%;
+    border: none;
+}
+
+.formulario-mensaje {
+    width: 100%;
+    outline: none;
+    border: none;
+   
+}
+
+.contenedor-file {
+    display: flex;
+    align-items: center;
+}
+
+/* Ocultar el campo de entrada de texto del input de tipo file */
+.input-imagen {
+    display: none;
+}
+
+/* Estilo para el botón personalizado */
+.custom-file-upload {
+    display: flex;
+    
+    background-color: #ccc;
+    border-radius: 10px;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 20px;
+}

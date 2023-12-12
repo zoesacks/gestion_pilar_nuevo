@@ -1,0 +1,249 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %}
+<a href="/" style="color: aliceblue;">INICIO</a> > <a href="/contaduria/aplicaciones/"
+    style="color: aliceblue;">CONTADURIA</a> > <a href="/expedientes" style="color: aliceblue;">EXPEDIENTES</a>
+{% endblock %}
+{% block content %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    integrity="sha512-..." crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css"
+    integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
+<script src="{% static 'script.js' %}"></script>
+
+<!--MODALES-->
+
+
+<div class="modal fade" data-bs-backdrop="static" id="transferirDocumentoModal" tabindex="-1" role="dialog"
+    aria-labelledby="transferirDocumentoModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="color: #5454E6;" id="transferirDocumento">
+                    <img src="/static/custom/img/logo.png" alt="logo" style="height: 50px;margin: 5px;"> 
+                    &nbsp;&nbsp; Transferir documento
+                </h5>
+                <button type="button" class="btn-close boton-cerrar-transferencia" data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body max-height">
+                <form class="enviar-transferencia-formulario" method="post">
+                    {% csrf_token %}
+                    <div class="row p-3">
+                        <div class="col-6">
+                            <!-- Columna izquierda con campos del formulario -->
+                            <div class="row m-1">
+                                <label for="documento" class="form-label"><b
+                                        class="texto-documento-form text-primary">Documento:</b></label>
+                                <select id="seleccionar-documento" name="documento" class="form-select" required>
+                                    <option value="" selected disabled>Selecciona un documento</option>
+                                </select>
+                            </div>
+
+                            <div class="row m-1 mt-3">
+                                <label for="usuario" class="form-label"><b class="text-primary">Enviar a:</b></label>
+                                <select id="seleccionar-usuario" name="usuario" class="form-select" required>
+                                    <option value="" selected disabled>Selecciona una persona</option>
+                                </select>
+                            </div>
+
+                            <div class="row m-1 mt-3">
+                                <label for="observacion" class="form-label"><b
+                                        class="text-primary">Observacion:</b></label>
+                                <textarea id="observacion" name="observacion" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <!-- Columna derecha con datos de tipo, número y ejercicio -->
+                            <div id="formulario-detalle-documento" class="row m-1 mt-2">
+                                <p><b class="text-primary text-uppercase">Tipo:&nbsp;&nbsp;</b><span
+                                        id="tipoDocumento"></span></p>
+                                <p><b class="text-primary text-uppercase">Numero:&nbsp;&nbsp;</b><span
+                                        id="numeroDocumento"></span></p>
+                                <p><b class="text-primary text-uppercase">Ejercicio:&nbsp;&nbsp;</b><span
+                                        id="ejercicioDocumento"></span></p>
+                                <p><b class="text-primary text-uppercase">Transferencias:&nbsp;&nbsp;</b><span
+                                        id="transferenciasDocumento">
+                                        <ul class="lista-transferencias list-group max-height overflow-auto border-0"
+                                            style="height: 20vh;"></ul>
+                                    </span></p>
+                            </div>
+                        </div>
+
+                        <!-- Botón al final de las columnas -->
+                        <div class="col-12 mt-3 text-center">
+                            <button type="submit" id="boton-enviar-transferencia" class="btn btn-primary btn-lg close"
+                                data-bs-dismiss="modal" aria-label="Cerrar" data-bs-toggle="modal"
+                                data-bs-target="#confirmacionModal" disabled>
+                                Crear transferencia
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!--<button typ
+                    e="submit" id="boton-enviar-transferencia" class="btn btn-primary btn-lg btn-block close" data-bs-dismiss="modal" aria-label="Cerrar" data-bs-toggle="modal" data-bs-target="#confirmacionModal">Crear transferencia</button>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Confimar transferencia modal-->
+
+<div class="modal fade " id="confirmacionModal" tabindex="-1" role="dialog" aria-labelledby="confirmacionModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="color: #5454E6;" id="transferirDocumento">
+                    <img class="logo img" src="{% static 'assets/logo.png' %}" alt="" style="height: 50px;width: 50px;">
+                    &nbsp;&nbsp; Confirmacion
+                </h5>
+                <button type="button" class="btn-close boton-cerrar-transferencia" data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <h5>¿Esta seguro de realizar la trasnferencia? </h5>
+                <br>
+
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary confirmar-transferencia-boton" id="crearTransferencia"
+                    data-bs-dismiss="modal" aria-label="Cerrar" data-bs-toggle="modal"
+                    data-bs-target="#confirmacionModal" name="crearTransferencia">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Modal ver datos de documento-->
+
+<div class="modal fade" id="verDocumentoModal" tabindex="-1" role="dialog" aria-labelledby="verDocumento"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Detalles del documento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-ver-documento">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Tarjetas-->
+<div class="container">
+    <div>
+        <div class="card-body">
+            <!-- tarjetas -->
+            <div class="row">
+                <!-- PENDIENTES -->
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small danger coloured-icon flex-fill">
+                        <i class="icon bi bi-exclamation-diamond fs-1"></i>
+                        <div class="info">
+                            <h4 class="fs-4">PENDIENTES</h4>
+                            <p><b id="documentos-pendientes"></b></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EN TRANSITO -->
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small warning coloured-icon flex-fill">
+                        <i class="icon bi bi-question-octagon-fill fs-1 "></i>
+                        <div class="info">
+                            <h4 class="fs-4">EN TRANSITO</h4>
+                            <p> <b id="documentos-en-transito"></b></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EN POSESION -->
+                <div class="col-md-6 d-flex">
+                    <div class="widget-small info coloured-icon flex-fill">
+                        <i class="icon bi bi-archive fs-1 "></i>
+                        <div class="info">
+                            <h4 class="fs-4">EN POSESION</h4>
+                            <p><b id="cant-documentos"></b></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- tabla -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary">
+                    <h6 class="m-0 font-weight-bold text-light">Detalles transferencias</h6>
+                </div>
+
+                    <div class="card-body">
+                    <div class="row p-3">
+                        <div class="col-6">
+                            <div id="nuevaTransferencia">
+                                <button type="button" id="nuevaTransferenciaBoton"
+                                    class="btn btn-primary btn-lg w-100" data-bs-toggle="modal"
+                                    data-bs-target="#transferirDocumentoModal">
+                                    Nueva transferencia
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="h-100">
+                                <form class="d-flex h-100">
+                                    <input class="form-control me-2 form-busqueda" type="search"
+                                        placeholder="Buscar documento" aria-label="Search">
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 p-4">
+                            <div class="table-responsive" style="border-radius: 0px; overflow: auto; height: 70vh;">
+                                <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th class="d-none d-sm-table-cell">Tipo</th>
+                                            <th class="">Numero</th>
+                                            <th class="d-none d-sm-table-cell">Ejercicio</th>
+                                            <th class="">Estado</th>
+                                            <th class="">Acciones</th>
+                                                
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="documentos-tabla">
+                                        <!-- Contenido de la tabla -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
