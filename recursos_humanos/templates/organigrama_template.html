@@ -1,0 +1,91 @@
+<!-- Ejemplo de integración en tu template Django -->
+
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="card" style="margin: 20px;">
+	<div class="card-header text-center">
+		<h1 class="">Organigrama Municipal</h1>
+	</div>
+	<div class="card-body">
+		<div class="row">
+			<div id="tree"></div>
+		</div>
+	</div>
+
+</div>
+
+<link rel="js" href=>
+<script src="{% static '/js/orgchart.js' %}"></script>
+<!-- Agrega tu organigrama en el script -->
+<script>
+	var data = JSON.parse('{{ data|safe  }}');
+	console.log(data)
+
+	OrgChart.templates.mila.node =
+		'<rect x="0" y="0" height="120" width="250" fill="#05358f" stroke-width="1" stroke="#aeaeae"></rect>'
+		+ '<rect x="-5" y="70" height="30" width="260" fill="#ffffff" stroke-width="1" stroke="#05358f">'
+		+ '</rect><line x1="-5" x2="0" y1="100" y2="105" stroke-width="1" stroke="#05358f" />'
+		+ '<line x1="255" x2="250" y1="100" y2="105" stroke-width="1" stroke="#05358f" />';
+	OrgChart.templates.mila.defs = '<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path fill="#aeaeae" d="M 0 0 L 10 5 L 0 10 z" /></marker><marker id="dotBlue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5"> <circle cx="5" cy="5" r="5" fill="#05358f" /></marker>';
+	OrgChart.templates.mila.link = '<path marker-start="url(#dotBlue)" marker-end="url(#arrow)"   stroke-linejoin="round" stroke="#aeaeae" stroke-width="1px" fill="none" d="M{xa},{ya} {xb},{yb} {xc},{yc} L{xd},{yd}" />';
+	OrgChart.templates.mila.link_field_0 = '<text text-anchor="middle" fill="#05358f" data-width="290" x="0" y="0" style="font-size:12px;">{val}</text>';
+	OrgChart.templates.mila.field_0 = '<text data-width="240" style="font-size: 18px;" fill="#05358f" x="125" y="92" text-anchor="middle">{val}</text>';
+    OrgChart.templates.mila.editFormHeaderColor = '#05358f';
+
+	OrgChart.templates.mila.nodeMenuButton =
+		'<g style="cursor:pointer;" transform="matrix(1,0,0,1,225,110)" data-ctrl-n-menu-id="{id}">'
+		+ '<rect x="-4" y="-10" fill="#000000" fill-opacity="0" width="22" height="22"></rect><circle cx="0" cy="0" r="2" fill="#ffffff">'
+		+ '</circle><circle cx="7" cy="0" r="2" fill="#ffffff"></circle><circle cx="14" cy="0" r="2" fill="#ffffff"></circle>'
+		+ '</g>';
+	data.forEach(function (node) {
+		if (node.img) {
+			node.img = '{{ MEDIA_URL }}' + node.img; // Agrega la ruta a las imágenes
+		}
+	});
+	OrgChart.SEARCH_PLACEHOLDER = "Buscar"; // the default value is "Search"
+    
+
+
+	var chart = new OrgChart(document.getElementById("tree"), {
+		mouseScrool: OrgChart.action.ctrlZoom,
+		enableSearch: true,
+		template: "mila",
+		nodeBinding: {
+			field_0: "nombre",
+			field_1: "puesto",
+			img_0: "img"
+		},
+		linkBinding: {
+			link_field_0: "createdAt"
+		},
+
+		editForm: {
+            buttons:  {
+                edit: null,
+                share: null,
+                pdf: {
+                    icon: OrgChart.icon.pdf(24,24,'#fff'),
+                    text: 'Save as PDF'
+                },
+                remove: null,
+            },
+			generateElementsFromFields: false,
+            elements: [
+                { type: 'textbox', label: 'Nombre', binding: 'nombre'},
+				{ type: 'textbox', label: 'Nacimiento', binding: 'nacimiento'},
+				{ type: 'textbox', label: 'Oficina', binding: 'oficina'},
+				{ type: 'textbox', label: 'Puesto', binding: 'puesto'},
+				{ type: 'textbox', label: 'Sector', binding: 'sector'},
+				{ type: 'textbox', label: 'Superior inmediato', binding: 'superior_inmediato'},
+            ]
+        }       
+	});
+
+	chart.load(data);
+</script>
+
+{% endblock %}
