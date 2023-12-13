@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', obtenerUsuario)
 async function obtenerUsuario() {
     const response = await fetch(`${url}/api/seguimiento-de-expedientes/usuarioLogueado`)
     usuario = await response.json()
+    
 
 }
 
@@ -233,10 +234,10 @@ function completarDatosDocumento() {
         res.transferencias.forEach(transferencia => {
             lista.innerHTML += `<li class="list-group-item">${transferencia.fecha} - ${transferencia.emisor.usuario.first_name} -> ${transferencia.receptor.usuario.first_name}</li>`
         })
-        console.log(res)
+        
     })
 
-    console.log(doc)
+    
 }
 
 async function obtenerUsuarios() {
@@ -261,7 +262,7 @@ function listarUsuariosFormulario() {
 }
 
 function listarDocumentosFormulario(id) {
-    console.log(documentos)
+    
     documentos.filter(doc => usuario.id === doc.propietario.usuario.id && !doc.en_transito).forEach((doc) => {
         const option = document.createElement('option')
         option.setAttribute("value", `${doc.id}`)
@@ -279,6 +280,7 @@ function capturarDatos() {
     data = Array.from(data)
     const idDocumento = parseInt(data[1][1])
     const idDestinatario = parseInt(data[2][1])
+    
     const observaciones = data[3][1]
     return { id_documento: idDocumento, id_usuario: idDestinatario, observacion: observaciones }
 
@@ -288,6 +290,7 @@ function transferirDocumento(data) {
 
     // Obtener el valor del token CSRF del documento
     var csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+    
 
     fetch(`${url}/api/seguimiento-de-expedientes/transferencia/`, {
         method: "POST",
@@ -307,6 +310,7 @@ function transferirDocumento(data) {
         .then((data) => {
 
             obtenerDocumentos()
+            listarDocumentosFormulario()
         })
         .catch((error) => {
             console.error('There was a problem with the fetch operation:', error);
@@ -338,7 +342,7 @@ function filtrarDocumentoFormulario(id) {
         res.transferencias.forEach(transferencia => {
             lista.innerHTML += `<li class="list-group-item">${transferencia.fecha} - ${transferencia.emisor.usuario.first_name} -> ${transferencia.receptor.usuario.first_name}</li>`
         })
-        console.log(res)
+        
     })
 
     

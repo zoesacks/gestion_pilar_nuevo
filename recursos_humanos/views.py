@@ -9,11 +9,20 @@ def construir_estructura_organigrama(legajos):
     legajos_dict = []
 
     for legaj in legajos:
+        if legaj.superior_inmediato:
+            superior = DatosPersonales.objects.get(legajo=legaj.superior_inmediato.id).apellido + ", " + DatosPersonales.objects.get(legajo=legaj.superior_inmediato.id).nombre
+        else: 
+            superior = "-"
+
         legajo = {
             "id": legaj.id,
             "pid": legaj.superior_inmediato_id,
-            "Nombre": DatosPersonales.objects.get(legajo=legaj).apellido + ", " + DatosPersonales.objects.get(legajo=legaj).nombre,
-            "Puesto": legaj.cargo.descripcion,
+            "superior_inmediato": superior,
+            "nombre": DatosPersonales.objects.get(legajo=legaj).apellido + ", " + DatosPersonales.objects.get(legajo=legaj).nombre,
+            "nacimiento": str(DatosPersonales.objects.get(legajo=legaj).nacimiento) ,
+            "puesto": legaj.cargo.descripcion,
+            "sector": legaj.sector.nombre,
+            "oficina": legaj.oficina.descripcion,
             "img": DatosPersonales.objects.get(legajo=legaj).foto.name
         }
         print(legajo)

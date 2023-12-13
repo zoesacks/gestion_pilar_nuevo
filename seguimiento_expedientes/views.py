@@ -17,5 +17,6 @@ class TransferenciaView(APIView):
             # Llama al método create del serializador
             resultado = serializer.save()
             return Response(resultado, status=status.HTTP_201_CREATED)
+        print(request.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -12,6 +12,7 @@ let url = window.location.origin
 async function obtenerTickets() {
     const response = await fetch(`${url}/api/solicitud-mesa-ayuda`)
     tickets = await response.json()
+    eliminarTicketsDelDOM()
     mostrarTarjetas(tickets)
     mostrarTickets(tickets)
 }
@@ -20,8 +21,7 @@ obtenerTickets()
 
 function mostrarTickets(tickets) {
     //Tomamos la tabla del dom
-    const container = document.querySelector('#dataTable')
-
+    const container = document.querySelector('.tickets-container')
     eliminarTicketsDelDOM()
 
     //Recorremos los tickets para agregar las filas de la tabla
@@ -173,6 +173,7 @@ function agregarTicket(data) {
             return response.json();
         })
         .then((data) => {
+            
             obtenerTickets()
         })
         .catch((error) => {
@@ -195,7 +196,6 @@ function agregarEventListenerBotones() {
 
 
 async function obtenerTicket(id) {
-    console.log(`${url}/api/solicitud-mesa-ayuda/${id}`)
     const response = await fetch(`${url}/api/solicitud-mesa-ayuda/${id}/`)
     ticket = await response.json()
     mostrarDatosTicket(ticket)
@@ -290,8 +290,6 @@ function agregarComentario(id, comentario) {
             return response.json();
         })
         .then((data) => {
-
-          console.log(data)
             
             modalComentarios.innerHTML += `
             <div class="mensaje propio">

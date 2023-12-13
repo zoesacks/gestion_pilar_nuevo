@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'mesa_de_ayuda',
     'seguimiento_expedientes',
     'api',
-    'facturas',
     'recursos_humanos'
 ]
 

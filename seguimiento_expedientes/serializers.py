@@ -25,7 +25,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = Legajo
-        fields = ('sector', 'usuario', )
+        fields = ('id', 'sector', 'usuario', )
 
 class TransferenciaSerializer(serializers.ModelSerializer):
     emisor = UsuarioSerializer()
