@@ -3,5 +3,5 @@ db.sqlite3
 
 # Ignorar las migraciones dentro de la carpeta administracion
 
-migrations
-__pycache__
+migrations/
+__pycache__/
